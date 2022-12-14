@@ -20,5 +20,10 @@
       "default": ["Admin"]
     }
   },
-  "commands": []
+  "commands": [
+    {
+      "name": "/calibrate-gm",
+      "description": "calibrates the plugin to recognize the global team (minigame) ID."
+    }
+  ]
 }

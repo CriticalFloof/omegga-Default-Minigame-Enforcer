@@ -15,6 +15,7 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
   }
 
   async init() {
+    let globalTeam: string = "0"
     //1. once per second, finds all players currently not in any minigame.
     const authorizedRoles = this.config["authorized-roles"]
 
@@ -44,10 +45,11 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
           const regExpMatchArray: RegExpMatchArray[] = await this.omegga.watchLogChunk( 'GetAll BP_PlayerState.BP_PlayerState_C Team', reg,
           {
             timeoutDelay: 500
-          })
+          }
+          )
           for (let j = 0; j < regExpMatchArray.length; j++) {
             const { team, state } = regExpMatchArray[j].groups;
-            if(player.state === state && team === "2147482533") {
+            if(player.state === state && team === globalTeam) {
               //3.2 set everyone who doesn't match criteria to the preferred minigame index.
               player.setMinigame(this.config['Default-minigame'])
             }
@@ -56,7 +58,27 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       }
     }, this.config['check-interval']*1000)
 
-    return { registeredCommands: [] };
+    Omegga.on('cmd:calibrate-gm', async (speaker: string) => {
+      const player = Omegga.getPlayer(speaker)
+      player.setMinigame(-1)
+      const state = player.state
+      const reg = new RegExp(
+        /BP_PlayerState_C .+?PersistentLevel\.(?<state>BP_PlayerState_C_\d+)\.Team = .+PersistentLevel.+BP_Team_C_(?<team>\d+)/
+      );
+      const regExpMatchArray: RegExpMatchArray[] = await this.omegga.addWatcher(reg,
+      {
+        exec() {
+          Omegga.writeln(`GetAll BP_PlayerState.BP_PlayerState_C Team Name="${state}"`)
+        },
+        timeoutDelay: 100
+      }
+      )
+      console.log(parseInt(regExpMatchArray[0].groups['team']))
+      globalTeam = regExpMatchArray[0].groups['team']
+      Omegga.whisper(speaker, `Global Team (minigame) calibrated to ${globalTeam}!`)
+    })
+
+    return { registeredCommands: ['calibrate-gm'] };
   }
 
   async stop() {
