@@ -60,6 +60,10 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
 
     Omegga.on('cmd:calibrate-gm', async (speaker: string) => {
       const player = Omegga.getPlayer(speaker)
+      if(!player.isHost){
+        Omegga.whisper(speaker, `Only the host can use this command!`);
+        return;
+      }
       player.setMinigame(-1)
       const state = player.state
       const reg = new RegExp(
