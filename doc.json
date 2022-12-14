@@ -1,0 +1,24 @@
+{
+  "name": "Default-Minigame-Enforcer",
+  "description": "A typed safe Omegga plugin.",
+  "author": "CriticalFloof",
+  "config": {
+    "Default-minigame": {
+      "description": "Index of the Default minigame. (Index is ordered top-down in-game, in the minigame menu. Index starts at 0)",
+      "type": "number",
+      "default": 0
+    },
+    "check-interval": {
+      "description": "The time between every check in seconds. (lower values may lag)",
+      "type": "number",
+      "default": 1
+    },
+    "authorized-roles": {
+      "description": "List of roles who are exempt from the plugin.",
+      "type": "list",
+      "itemType": "role",
+      "default": ["Admin"]
+    }
+  },
+  "commands": []
+}
